@@ -1,2 +1,6 @@
 discord:
   token: ${DISCORD_TOKEN}
+
+bot:
+  schedule:
+    cron: "0 0 18 ? * TUE,SAT"

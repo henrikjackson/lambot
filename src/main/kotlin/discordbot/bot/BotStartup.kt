@@ -29,8 +29,10 @@ class BotStartup(
     private val supervisor = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Default + supervisor)
 
-    private lateinit var kord: Kord
+    private var kord: Kord? = null
     private var botJob: Job? = null
+
+    fun kordOrNull() = kord
 
     @OptIn(PrivilegedIntent::class)
     @PostConstruct
@@ -38,25 +40,27 @@ class BotStartup(
         logger.info("Starting bot...")
 
         botJob = scope.launch {
-            kord = Kord(properties.token)
+            val instance = Kord(properties.token)
 
             val guildId = Snowflake("784044051791478796")
 
             listeners.forEach { listener ->
-                listener.register(kord)
+                listener.register(instance)
                 logger.info("Registered listener: ${listener.javaClass.simpleName}")
             }
 
             commands.forEach { command ->
-                kord.createGuildChatInputCommand(
+                instance.createGuildChatInputCommand(
                     guildId,
                     command.name,
                     "Command ${command.name} description"
                 )
-                command.register(kord)
+                command.register(instance)
             }
 
-            kord.login {
+            kord = instance
+
+            instance.login {
                 intents = Intents {
                     +Intent.GuildMessages
                     +Intent.MessageContent

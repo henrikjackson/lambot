@@ -1,0 +1,3 @@
+bot:
+  schedule:
+    cron: "*/10 * * * * ?"
