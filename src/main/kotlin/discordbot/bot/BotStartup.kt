@@ -1,11 +1,10 @@
 package discordbot.bot
 
 import dev.kord.core.Kord
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.core.on
 import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
+import discordbot.bot.listener.DiscordListener
 import discordbot.config.DiscordProperties
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
@@ -18,7 +17,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class BotStartup(
-    private val properties: DiscordProperties
+    private val properties: DiscordProperties,
+    private val listeners: List<DiscordListener>
 ) {
     private val logger = LoggerFactory.getLogger(BotStartup::class.java)
 
@@ -33,13 +33,9 @@ class BotStartup(
         scope.launch {
             val kord = Kord(properties.token)
 
-            kord.on<MessageCreateEvent> {
-                logger.info("Received message: ${message.content}")
-
-                if (message.author?.isBot != false) return@on
-                if (message.content != "!ping") return@on
-
-                message.channel.createMessage("Pong!")
+            listeners.forEach { listener ->
+                listener.register(kord)
+                logger.info("Registered listener: ${listener.javaClass.simpleName}")
             }
 
             kord.login {
