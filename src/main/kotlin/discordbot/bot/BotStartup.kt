@@ -11,6 +11,7 @@ import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -22,16 +23,19 @@ class BotStartup(
 ) {
     private val logger = LoggerFactory.getLogger(BotStartup::class.java)
 
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.Default + job)
+    private val supervisor = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.Default + supervisor)
+
+    private lateinit var kord: Kord
+    private var botJob: Job? = null
 
     @OptIn(PrivilegedIntent::class)
     @PostConstruct
     fun startBot() {
         logger.info("Starting bot...")
 
-        scope.launch {
-            val kord = Kord(properties.token)
+        botJob = scope.launch {
+            kord = Kord(properties.token)
 
             listeners.forEach { listener ->
                 listener.register(kord)
@@ -50,6 +54,9 @@ class BotStartup(
     @PreDestroy
     fun shutdown() {
         logger.info("Shutting down bot...")
-        job.cancel()
+
+        botJob?.cancel()
+
+        supervisor.cancel()
     }
 }
