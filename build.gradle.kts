@@ -1,21 +1,37 @@
 plugins {
     kotlin("jvm") version "2.2.20"
+    kotlin("plugin.spring") version "2.2.20"
+
+    id("org.springframework.boot") version "4.0.1"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "org.example"
-version = "1.0-SNAPSHOT"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    implementation("org.springframework.boot:spring-boot-starter")
+
+    // Web (REST, embedded Tomcat, etc.)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // Kotlin support
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation(kotlin("reflect"))
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
 }
