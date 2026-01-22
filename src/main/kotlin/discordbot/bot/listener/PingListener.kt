@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class Ping : DiscordListener {
-    private val logger = LoggerFactory.getLogger(Ping::class.java)
+class PingListener : DiscordListener {
+    private val logger = LoggerFactory.getLogger(PingListener::class.java)
 
     override fun register(kord: dev.kord.core.Kord) {
         kord.on<MessageCreateEvent> {
