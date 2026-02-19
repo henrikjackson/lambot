@@ -6,7 +6,7 @@ import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEve
 interface SlashCommand {
     val name: String
 
-    fun register(kord: Kord)
+    suspend fun register(kord: Kord)
 
     suspend fun handle(event: GuildChatInputCommandInteractionCreateEvent)
 }

@@ -4,4 +4,5 @@ discord:
 bot:
   schedule:
     channel-id: 784044052248133633
+    guild-id: 784044051791478796
     cron: "0 0 18 ? * TUE,SAT"

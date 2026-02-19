@@ -12,7 +12,7 @@ class PingCommand : SlashCommand {
 
     override val name = "ping"
 
-    override fun register(kord: dev.kord.core.Kord) {
+    override suspend fun register(kord: dev.kord.core.Kord) {
         logger.info("Registering ping command...")
 
         kord.on<GuildChatInputCommandInteractionCreateEvent> {

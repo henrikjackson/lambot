@@ -1,47 +1,71 @@
 package lambot.discord.command
 
-import dev.kord.common.entity.ButtonStyle
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.Kord
+import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import dev.kord.core.on
 import org.springframework.stereotype.Component
-import dev.kord.core.behavior.channel.createMessage
-import dev.kord.rest.builder.component.ActionRowBuilder
-
+import dev.kord.rest.builder.interaction.string
+import lambot.discord.config.BotScheduleProperties
+import lambot.events.EventSignupService
+import dev.kord.core.behavior.interaction.updatePublicMessage
+import org.slf4j.LoggerFactory
 
 
 @Component
-class CreateEventCommand : SlashCommand {
+class CreateEventCommand(
+    private val eventSignupService: EventSignupService,
+    private val botScheduleProperties: BotScheduleProperties
+) : SlashCommand {
     override val name = "event"
 
-    override fun register(kord: dev.kord.core.Kord) {
-        kord.on<GuildChatInputCommandInteractionCreateEvent> {
-            if (interaction.command.rootName != name) return@on
-            handle(this)
+    private val logger = LoggerFactory.getLogger(CreateEventCommand::class.java)
+
+    override suspend fun register(kord: Kord) {
+        kord.createGuildChatInputCommand(
+            guildId = Snowflake(botScheduleProperties.guildId),
+            name = name,
+            description = "Create a new event"
+        ) {
+            string("name", "Event name") {
+                required = true
+            }
+            string("description", "Event description") {
+                required = true
+            }
         }
     }
 
-    override suspend fun handle(event: GuildChatInputCommandInteractionCreateEvent) {
-        val channel = event.interaction.channel
+    override suspend fun handle(
+        event: GuildChatInputCommandInteractionCreateEvent
+    ) {
+        logger.info("Received event creation command!")
+        val interaction = event.interaction
 
-        channel.createMessage {
-            content = buildMessage(
-                yes = emptyList(),
-                no = emptyList()
-            )
+        logger.info("Interaction appId = ${interaction.applicationId}")
+        val name = interaction.command.strings["name"]
+            ?: return
 
-            components = mutableListOf(
-                ActionRowBuilder().apply {
-                    interactionButton(
-                        style = ButtonStyle.Success,
-                        customId = "event:yes",
-                    ) { label = "Yes" }
+        logger.info("Creating event: $name")
+        val description = interaction.command.strings["description"]
+            ?: return
 
-                    interactionButton(
-                        style = ButtonStyle.Danger,
-                        customId = "event:no",
-                    ) { label = "No" }
-                }
-            )
+        logger.info("Creating message...")
+        val createdEvent = eventSignupService.createEvent(
+            name = name,
+            description = description
+        )
+
+        logger.info("Created event: ${createdEvent.id}")
+        interaction.respondPublic {
+            content = """
+                🎉 **Event created!**
+                
+                **${createdEvent.name}**
+                ${createdEvent.description}
+                
+                Event ID: `${createdEvent.id}`
+            """.trimIndent()
         }
     }
 
