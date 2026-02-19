@@ -19,26 +19,24 @@ class EventSignupService(
         return repository.save(event)
     }
 
-    fun attend(eventId: UUID, userId: Long): Result<Event> {
+    fun signup(eventId: UUID, userId: Long, role: Role): Result<Event> {
         val event = repository.findById(eventId) ?: return Result.failure(IllegalStateException("Event not found"))
 
+        event.tanks.remove(userId)
+        event.healers.remove(userId)
+        event.dps.remove(userId)
         event.notAttending.remove(userId)
-        event.attending.add(userId)
+
+        when (role) {
+            Role.TANK -> event.tanks.add(userId)
+            Role.HEALER -> event.healers.add(userId)
+            Role.DPS -> event.dps.add(userId)
+            Role.NOT_ATTENDING -> event.notAttending.add(userId)
+        }
 
         repository.save(event)
         return Result.success(event)
     }
-
-    fun decline(eventId: UUID, userId: Long): Result<Event> {
-        val event = repository.findById(eventId) ?: return Result.failure(IllegalStateException("Event not found"))
-
-        event.attending.remove(userId)
-        event.notAttending.add(userId)
-
-        repository.save(event)
-        return Result.success(event)
-    }
-
 
     fun listEvents() = repository.findAll()
 }

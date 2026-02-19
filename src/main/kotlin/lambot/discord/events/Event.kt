@@ -8,6 +8,8 @@ data class Event(
     val name: String,
     val description: String,
     val createdAt: LocalDateTime?,
-    val attending: MutableSet<Long> = mutableSetOf(),
+    val tanks: MutableSet<Long> = mutableSetOf(),
+    val healers: MutableSet<Long> = mutableSetOf(),
+    val dps: MutableSet<Long> = mutableSetOf(),
     val notAttending: MutableSet<Long> = mutableSetOf()
 )

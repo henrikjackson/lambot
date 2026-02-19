@@ -3,6 +3,7 @@ package lambot.discord.events
 import dev.kord.rest.builder.message.MessageBuilder
 import dev.kord.rest.builder.component.ActionRowBuilder
 import dev.kord.common.entity.ButtonStyle
+import dev.kord.common.entity.DiscordPartialEmoji
 
 fun MessageBuilder.eventMessage(event: Event) {
     content = buildString {
@@ -10,42 +11,45 @@ fun MessageBuilder.eventMessage(event: Event) {
         appendLine(event.description)
         appendLine()
 
-        appendLine("✅ **Yes (${event.attending.size})**")
-        if (event.attending.isEmpty()) {
-            appendLine("_No responses yet_")
-        } else {
-            event.attending.forEach {
-                appendLine("• <@$it>")
-            }
-        }
-
-        appendLine()
-        appendLine("❌ **No (${event.notAttending.size})**")
-        if (event.notAttending.isEmpty()) {
-            appendLine("_No responses yet_")
-        } else {
-            event.notAttending.forEach {
-                appendLine("• <@$it>")
-            }
-        }
+        renderRole("🛡 Tank", event.tanks)
+        renderRole("💚 Healer", event.healers)
+        renderRole("⚔ DPS", event.dps)
+        renderRole("❌ Not Attending", event.notAttending)
     }
 
     components = mutableListOf(
         ActionRowBuilder().apply {
-            interactionButton(
-                style = ButtonStyle.Success,
-                customId = "event:yes:${event.id}"
-            ) {
-                label = "Yes"
+            interactionButton(ButtonStyle.Primary, "event:tank:${event.id}") {
+                label = "Tank"
+                emoji = DiscordPartialEmoji(name = "🛡")
             }
+            interactionButton(ButtonStyle.Success, "event:healer:${event.id}") {
+                label = "Healer"
+                emoji = DiscordPartialEmoji(name = "💚")
+            }
+            interactionButton(ButtonStyle.Secondary, "event:dps:${event.id}") {
+                label = "DPS"
+                emoji = DiscordPartialEmoji(name = "⚔")
+            }
+            interactionButton(ButtonStyle.Danger, "event:na:${event.id}") {
+                label = "Not Attending"
+            }
+        })
+    }
 
-            interactionButton(
-                style = ButtonStyle.Danger,
-                customId = "event:no:${event.id}"
-            ) {
-                label = "No"
-            }
+
+private fun StringBuilder.renderRole(
+    title: String,
+    users: Set<Long>
+) {
+    appendLine("**$title (${users.size})**")
+    if (users.isEmpty()) {
+        appendLine("_No signups_")
+    } else {
+        users.forEach {
+            appendLine("• <@$it>")
         }
-    )
+    }
+    appendLine()
 }
 

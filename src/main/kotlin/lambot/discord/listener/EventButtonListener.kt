@@ -6,6 +6,7 @@ import dev.kord.core.on
 import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.interaction.respondEphemeral
 import lambot.discord.events.EventSignupService
+import lambot.discord.events.Role
 import lambot.discord.events.eventMessage
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -20,27 +21,26 @@ class EventButtonListener(
 
     override fun register(kord: Kord) {
         kord.on<ButtonInteractionCreateEvent> {
-            val componentId = interaction.componentId
+            val parts = interaction.componentId.split(":")
+            if (parts.first() != "event") return@on
 
-            if (!componentId.startsWith("event:")) return@on
-
-            val parts = componentId.split(":")
-            val action = parts[1]
-            val eventId = UUID.fromString(parts[2])
-            val interactinUserID = interaction.user.id.value.toLong()
-
-            logger.info("Button clicked: $action on event $eventId by $interactinUserID")
-
-            val updatedEvent = when (action) {
-                "yes" -> eventSignupService.attend(eventId, interactinUserID)
-                "no" -> eventSignupService.decline(eventId, interactinUserID)
+            val role = when (parts[1]) {
+                "tank" -> Role.TANK
+                "healer" -> Role.HEALER
+                "dps" -> Role.DPS
+                "na" -> Role.NOT_ATTENDING
                 else -> return@on
-            }.getOrElse {
-                interaction.respondEphemeral {
-                    content = it.message ?: "Failed to update event"
-                }
-                return@on
             }
+
+            val eventId = UUID.fromString(parts[2])
+            val userId = interaction.user.id.value.toLong()
+
+            val updatedEvent = eventSignupService
+                .signup(eventId, userId, role)
+                .getOrElse {
+                    interaction.respondEphemeral { content = "An error occurred: ${it.message}" }
+                    return@on
+                }
 
             interaction.message.edit {
                 eventMessage(updatedEvent)

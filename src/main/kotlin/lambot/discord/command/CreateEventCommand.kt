@@ -68,18 +68,4 @@ class CreateEventCommand(
             content = "✅ Event **${createdEvent.name}** created!"
         }
     }
-
-    private fun buildMessage(
-        yes: List<String>,
-        no: List<String>
-    ): String =
-        """
-        📅 **New Event**
-
-        ✅ **Yes (${yes.size})**
-        ${yes.joinToString("\n") { "• $it" }.ifBlank { "_No responses yet_" }}
-
-        ❌ **No (${no.size})**
-        ${no.joinToString("\n") { "• $it" }.ifBlank { "_No responses yet_" }}
-        """.trimIndent()
 }
