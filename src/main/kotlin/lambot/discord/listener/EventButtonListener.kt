@@ -1,5 +1,6 @@
 package lambot.discord.listener
 
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.ButtonInteractionCreateEvent
 import dev.kord.core.on
@@ -51,7 +52,7 @@ class EventButtonListener(
                 val messageId = updated.messageId ?: return@on
                 val channel = interaction.channel
 
-                channel.getMessage(messageId).edit {
+                channel.getMessage(Snowflake(messageId)).edit {
                     eventMessage(updated)
                 }
 
@@ -95,7 +96,7 @@ class EventButtonListener(
 
             val channel = interaction.channel
 
-            channel.getMessage(messageId).edit {
+            channel.getMessage(Snowflake(messageId)).edit {
                 eventMessage(updated)
             }
 
@@ -131,7 +132,7 @@ class EventButtonListener(
 
             val channel = interaction.channel
 
-            channel.getMessage(messageId).edit {
+            channel.getMessage(Snowflake(messageId)).edit {
                 eventMessage(updated)
             }
 

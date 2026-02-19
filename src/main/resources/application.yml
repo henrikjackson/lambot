@@ -6,3 +6,14 @@ bot:
     channel-id: 784044052248133633
     guild-id: 784044051791478796
     cron: "0 0 18 ? * TUE,SAT"
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5555/lambot?sslmode=disable
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
