@@ -3,13 +3,15 @@ package lambot.discord.command
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.behavior.interaction.respondPublic
+import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import org.springframework.stereotype.Component
 import dev.kord.rest.builder.interaction.string
 import lambot.discord.config.BotScheduleProperties
-import lambot.events.EventSignupService
-import dev.kord.core.behavior.interaction.updatePublicMessage
+import lambot.discord.events.EventSignupService
 import org.slf4j.LoggerFactory
+import dev.kord.core.behavior.channel.createMessage
+import lambot.discord.events.eventMessage
 
 
 @Component
@@ -42,30 +44,28 @@ class CreateEventCommand(
         logger.info("Received event creation command!")
         val interaction = event.interaction
 
-        logger.info("Interaction appId = ${interaction.applicationId}")
-        val name = interaction.command.strings["name"]
-            ?: return
+        val name = interaction.command.strings["name"] ?: return
+        val description = interaction.command.strings["description"] ?: return
 
-        logger.info("Creating event: $name")
-        val description = interaction.command.strings["description"]
-            ?: return
-
-        logger.info("Creating message...")
         val createdEvent = eventSignupService.createEvent(
             name = name,
             description = description
         )
 
-        logger.info("Created event: ${createdEvent.id}")
+        // 1️⃣ Send the event message with buttons
+        val kord = interaction.kord
+        val channelId = Snowflake(botScheduleProperties.channelId)
+
+        val channel = kord.getChannelOf<MessageChannel>(channelId)
+            ?: error("Channel not found")
+
+        channel.createMessage {
+            eventMessage(createdEvent)   // 👈 HERE
+        }
+
+        // 2️⃣ Acknowledge the slash command
         interaction.respondPublic {
-            content = """
-                🎉 **Event created!**
-                
-                **${createdEvent.name}**
-                ${createdEvent.description}
-                
-                Event ID: `${createdEvent.id}`
-            """.trimIndent()
+            content = "✅ Event **${createdEvent.name}** created!"
         }
     }
 

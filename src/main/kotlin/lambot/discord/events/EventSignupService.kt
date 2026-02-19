@@ -1,6 +1,5 @@
-package lambot.events
+package lambot.discord.events
 
-import io.ktor.http.renderSetCookieHeader
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.UUID

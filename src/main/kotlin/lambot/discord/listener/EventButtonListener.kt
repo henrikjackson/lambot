@@ -1,59 +1,54 @@
 package lambot.discord.listener
 
-import dev.kord.core.behavior.edit
-import dev.kord.core.behavior.interaction.respondPublic
+import dev.kord.core.Kord
 import dev.kord.core.event.interaction.ButtonInteractionCreateEvent
 import dev.kord.core.on
-import lambot.discord.event.EventService
+import dev.kord.core.behavior.edit
+import dev.kord.core.behavior.interaction.respondEphemeral
+import lambot.discord.events.EventSignupService
+import lambot.discord.events.eventMessage
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class EventButtonListener(
-    private val eventService: EventService
+    private val eventSignupService: EventSignupService
 ) : DiscordListener {
+
     private val logger = LoggerFactory.getLogger(EventButtonListener::class.java)
 
-    override fun register(kord: dev.kord.core.Kord) {
+    override fun register(kord: Kord) {
         kord.on<ButtonInteractionCreateEvent> {
-            logger.info("Received button interaction: ${interaction.componentId}")
+            val componentId = interaction.componentId
 
-            logger.info("Interaction appId = ${interaction.applicationId}")
+            if (!componentId.startsWith("event:")) return@on
 
-            val messageId = interaction.message.id
-            val userId = interaction.user.id
+            val parts = componentId.split(":")
+            val action = parts[1]
+            val eventId = UUID.fromString(parts[2])
+            val interactinUserID = interaction.user.id.value.toLong()
 
-            when (interaction.componentId) {
-                "event:yes" -> eventService.respondYes(messageId, userId)
-                "event:no" -> eventService.respondNo(messageId, userId)
+            logger.info("Button clicked: $action on event $eventId by $interactinUserID")
+
+            val updatedEvent = when (action) {
+                "yes" -> eventSignupService.attend(eventId, interactinUserID)
+                "no" -> eventSignupService.decline(eventId, interactinUserID)
                 else -> return@on
+            }.getOrElse {
+                interaction.respondEphemeral {
+                    content = it.message ?: "Failed to update event"
+                }
+                return@on
             }
-
-            val state = eventService.get(messageId) ?: return@on
-
-            interaction.respondPublic { content = "Response recorded!" }
 
             interaction.message.edit {
-                content = buildMessage(
-                    yes = state.yes.map { "<@$it>" },
-                    no = state.no.map { "<@$it>" }
-                )
+                eventMessage(updatedEvent)
             }
 
+            interaction.respondEphemeral {
+                content = "Your response has been recorded 👍"
+            }
         }
     }
-
-    private fun buildMessage(
-        yes: List<String>,
-        no: List<String>
-    ): String =
-        """
-        📅 **New Event**
-
-        ✅ **Yes (${yes.size})**
-        ${yes.joinToString("\n").ifBlank { "_No responses yet_" }}
-
-        ❌ **No (${no.size})**
-        ${no.joinToString("\n").ifBlank { "_No responses yet_" }}
-        """.trimIndent()
 }

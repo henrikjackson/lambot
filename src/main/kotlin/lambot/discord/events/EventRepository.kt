@@ -1,4 +1,4 @@
-package lambot.events
+package lambot.discord.events
 
 import org.springframework.stereotype.Repository
 import java.util.UUID
