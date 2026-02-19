@@ -1,10 +1,10 @@
-package discordbot.bot.listener
+package lambot.discord.listener
 
 import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.event.interaction.ButtonInteractionCreateEvent
 import dev.kord.core.on
-import discordbot.event.EventService
+import lambot.discord.event.EventService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

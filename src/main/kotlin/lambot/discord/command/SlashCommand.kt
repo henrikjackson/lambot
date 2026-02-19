@@ -1,4 +1,4 @@
-package discordbot.bot.command
+package lambot.discord.command
 
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent

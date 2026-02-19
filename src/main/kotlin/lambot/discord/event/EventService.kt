@@ -1,4 +1,4 @@
-package discordbot.event
+package lambot.discord.event
 
 import dev.kord.common.entity.Snowflake
 import org.slf4j.LoggerFactory

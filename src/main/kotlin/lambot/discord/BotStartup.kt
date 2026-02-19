@@ -1,13 +1,13 @@
-package discordbot.bot
+package lambot.discord
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
-import discordbot.bot.command.SlashCommand
-import discordbot.bot.listener.DiscordListener
-import discordbot.config.DiscordProperties
+import lambot.discord.command.SlashCommand
+import lambot.discord.listener.DiscordListener
+import lambot.config.DiscordProperties
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
@@ -33,6 +33,8 @@ class BotStartup(
     private var botJob: Job? = null
 
     fun kordOrNull() = kord
+
+    fun scope(): CoroutineScope = scope
 
     @OptIn(PrivilegedIntent::class)
     @PostConstruct

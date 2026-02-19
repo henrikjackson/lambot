@@ -3,4 +3,5 @@ discord:
 
 bot:
   schedule:
+    channel-id: 784044052248133633
     cron: "0 0 18 ? * TUE,SAT"

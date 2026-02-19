@@ -1,4 +1,4 @@
-package discordbot.bot.listener
+package lambot.discord.listener
 
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
