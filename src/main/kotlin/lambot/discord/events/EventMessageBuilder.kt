@@ -4,6 +4,7 @@ import dev.kord.rest.builder.message.MessageBuilder
 import dev.kord.rest.builder.component.ActionRowBuilder
 import dev.kord.common.entity.ButtonStyle
 import dev.kord.common.entity.DiscordPartialEmoji
+import lambot.raid.WowClass
 
 fun MessageBuilder.eventMessage(event: Event) {
     content = buildString {
@@ -14,7 +15,7 @@ fun MessageBuilder.eventMessage(event: Event) {
         renderRole("🛡 Tank", event.tanks)
         renderRole("💚 Healer", event.healers)
         renderRole("⚔ DPS", event.dps)
-        renderRole("❌ Not Attending", event.notAttending)
+        renderNotAttending("❌ Not Attending", event.notAttending)
     }
 
     components = mutableListOf(
@@ -40,14 +41,29 @@ fun MessageBuilder.eventMessage(event: Event) {
 
 private fun StringBuilder.renderRole(
     title: String,
-    users: Set<Long>
+    users: Map<Long, WowClass>
 ) {
     appendLine("**$title (${users.size})**")
     if (users.isEmpty()) {
         appendLine("_No signups_")
     } else {
-        users.forEach {
-            appendLine("• <@$it>")
+        users.forEach { (userId, wowClass) ->
+            appendLine("${wowClass.emoji} <@$userId> (${wowClass.displayName})")
+        }
+    }
+    appendLine()
+}
+
+private fun StringBuilder.renderNotAttending(
+    title: String,
+    users: Set<Long>
+) {
+    appendLine("**$title (${users.size})**")
+    if (users.isEmpty()) {
+        appendLine("_No responses_")
+    } else {
+        users.forEach { userId ->
+            appendLine("• <@$userId>")
         }
     }
     appendLine()

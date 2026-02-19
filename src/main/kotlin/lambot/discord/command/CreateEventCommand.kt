@@ -52,18 +52,18 @@ class CreateEventCommand(
             description = description
         )
 
-        // 1️⃣ Send the event message with buttons
         val kord = interaction.kord
         val channelId = Snowflake(botScheduleProperties.channelId)
 
         val channel = kord.getChannelOf<MessageChannel>(channelId)
             ?: error("Channel not found")
 
-        channel.createMessage {
-            eventMessage(createdEvent)   // 👈 HERE
+        val message = channel.createMessage {
+            eventMessage(createdEvent)
         }
 
-        // 2️⃣ Acknowledge the slash command
+        eventSignupService.attachMessageId(createdEvent.id, message.id)
+
         interaction.respondPublic {
             content = "✅ Event **${createdEvent.name}** created!"
         }

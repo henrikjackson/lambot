@@ -1,5 +1,8 @@
 package lambot.discord.events
 
+import dev.kord.common.entity.Snowflake
+import lambot.raid.Role
+import lambot.raid.WowClass
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.UUID
@@ -19,7 +22,7 @@ class EventSignupService(
         return repository.save(event)
     }
 
-    fun signup(eventId: UUID, userId: Long, role: Role): Result<Event> {
+    fun signup(eventId: UUID, userId: Long, role: Role, wowClass: WowClass?): Result<Event> {
         val event = repository.findById(eventId) ?: return Result.failure(IllegalStateException("Event not found"))
 
         event.tanks.remove(userId)
@@ -28,9 +31,9 @@ class EventSignupService(
         event.notAttending.remove(userId)
 
         when (role) {
-            Role.TANK -> event.tanks.add(userId)
-            Role.HEALER -> event.healers.add(userId)
-            Role.DPS -> event.dps.add(userId)
+            Role.TANK -> event.tanks[userId] = wowClass!!
+            Role.HEALER -> event.healers[userId] = wowClass!!
+            Role.DPS -> event.dps[userId] = wowClass!!
             Role.NOT_ATTENDING -> event.notAttending.add(userId)
         }
 
@@ -38,5 +41,10 @@ class EventSignupService(
         return Result.success(event)
     }
 
-    fun listEvents() = repository.findAll()
+    fun attachMessageId(eventId: UUID, messageId: Snowflake) {
+        val event = repository.findById(eventId) ?: return
+
+        event.messageId = messageId
+        repository.save(event)
+    }
 }
