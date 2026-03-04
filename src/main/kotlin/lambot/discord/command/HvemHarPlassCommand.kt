@@ -50,14 +50,14 @@ class HvemHarPlassCommand(
         sb.appendLine("**I raidet (${roster.size}):**")
         if (roster.isEmpty()) sb.appendLine("_Ingen påmeldt enda._")
         else {
-            sb.appendLine("_# · Navn (Klasse) · Påmeldt som_")
+            sb.appendLine("_## · Navn (Rolle) · Påmeldt som_")
             roster.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
         }
 
         if (bench.isNotEmpty()) {
             sb.appendLine()
             sb.appendLine("**Benk (${bench.size}):**")
-            sb.appendLine("_# · Navn (Klasse) · Påmeldt som_")
+            sb.appendLine("_## · Navn - (Klasse) · Påmeldt som_")
             bench.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
         }
 
@@ -67,8 +67,8 @@ class HvemHarPlassCommand(
     private fun formatEntry(pos: Int, signup: SignUp, callerId: String): String {
         val signPos = signup.position?.let { " : $it" } ?: ""
         return if (signup.userId == callerId)
-            "$pos. **${signup.name}** (${signup.className})$signPos ← deg"
+            "$pos. **${signup.name}** - (${signup.className})$signPos ← deg"
         else
-            "$pos. ${signup.name} (${signup.className})$signPos"
+            "$pos. ${signup.name} - (${signup.className})$signPos"
     }
 }
