@@ -49,11 +49,15 @@ class HvemHarPlassCommand(
         sb.appendLine()
         sb.appendLine("**I raidet (${roster.size}):**")
         if (roster.isEmpty()) sb.appendLine("_Ingen påmeldt enda._")
-        else roster.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
+        else {
+            sb.appendLine("_# · Navn (Klasse) · Påmeldt som_")
+            roster.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
+        }
 
         if (bench.isNotEmpty()) {
             sb.appendLine()
             sb.appendLine("**Benk (${bench.size}):**")
+            sb.appendLine("_# · Navn (Klasse) · Påmeldt som_")
             bench.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
         }
 
