@@ -14,6 +14,7 @@ data class RaidEvent(
     val id: String,
     val title: String,
     val startTime: Long,
+    val channelId: String? = null,
     val signUps: List<SignUp>? = null
 )
 

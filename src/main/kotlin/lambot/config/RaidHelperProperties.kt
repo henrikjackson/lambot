@@ -9,7 +9,9 @@ class RaidHelperProperties {
     lateinit var apiKey: String
     var baseUrl: String = "https://raid-helper.dev/api"
     lateinit var serverId: String
-    lateinit var channelId: String
+    lateinit var wednesdayChannelId: String
+    lateinit var sundayChannelId: String
     lateinit var leaderId: String
     lateinit var templateId: String
+    var autoCreateEvents: Boolean = true
 }

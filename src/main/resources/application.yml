@@ -8,7 +8,9 @@ discord:
 raidhelper:
   api-key: ${RAIDHELPER_API_KEY}
   server-id: ${RAIDHELPER_SERVER_ID}
-  channel-id: ${RAIDHELPER_CHANNEL_ID}
+  wednesday-channel-id: ${RAIDHELPER_WEDNESDAY_CHANNEL_ID}
+  sunday-channel-id: ${RAIDHELPER_SUNDAY_CHANNEL_ID}
   leader-id: ${RAIDHELPER_LEADER_ID}
   template-id: ${RAIDHELPER_TEMPLATE_ID}
+  auto-create-events: ${RAIDHELPER_AUTO_CREATE_EVENTS:true}
 

@@ -19,22 +19,19 @@ class RaidHelperClient(private val properties: RaidHelperProperties) {
         .build()
 
     fun getNextEvent(day: DayOfWeek): RaidEvent? {
+        val channelId = if (day == DayOfWeek.WEDNESDAY) properties.wednesdayChannelId else properties.sundayChannelId
         val now = Instant.now().epochSecond
         val response = client.get()
             .uri("/v3/servers/${properties.serverId}/events?StartTimeFilter=$now&Page=1")
             .header("IncludeSignUps", "true")
             .retrieve()
             .body(EventsResponse::class.java)
-        return response?.postedEvents?.firstOrNull { event ->
-            Instant.ofEpochSecond(event.startTime)
-                .atZone(ZoneId.of("Europe/Oslo"))
-                .dayOfWeek == day
-        }
+        return response?.postedEvents?.firstOrNull { it.channelId == channelId }
     }
 
-    fun createEvent(request: CreateEventRequest) {
+    fun createEvent(request: CreateEventRequest, channelId: String) {
         client.post()
-            .uri("/v2/servers/${properties.serverId}/channels/${properties.channelId}/event")
+            .uri("/v2/servers/${properties.serverId}/channels/$channelId/event")
             .header("Content-Type", "application/json")
             .body(request)
             .retrieve()
