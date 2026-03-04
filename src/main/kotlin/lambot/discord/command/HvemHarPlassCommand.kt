@@ -48,29 +48,23 @@ class HvemHarPlassCommand(
         sb.appendLine("**${nextEvent.title}**")
         sb.appendLine()
         sb.appendLine("**I raidet (${roster.size}):**")
-        sb.append(formatTable(roster.mapIndexed { i, s -> i + 1 to s }, userId))
+        if (roster.isEmpty()) sb.appendLine("_Ingen påmeldt enda._")
+        else roster.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
 
         if (bench.isNotEmpty()) {
             sb.appendLine()
             sb.appendLine("**Benk (${bench.size}):**")
-            sb.append(formatTable(bench.mapIndexed { i, s -> i + 1 to s }, userId))
+            bench.forEachIndexed { i, s -> sb.appendLine(formatEntry(i + 1, s, userId)) }
         }
 
         event.interaction.respondEphemeral { content = sb.toString().trimEnd() }
     }
 
-    private fun formatTable(entries: List<Pair<Int, SignUp>>, callerId: String): String {
-        val nameWidth = 20
-        val classWidth = 10
-        val header = " #   ${"Navn".padEnd(nameWidth)} ${"Klasse".padEnd(classWidth)}  Sign"
-        val separator = "-".repeat(header.length)
-        val rows = entries.map { (pos, signup) ->
-            val name = signup.name.take(nameWidth).padEnd(nameWidth)
-            val cls = signup.className.take(classWidth).padEnd(classWidth)
-            val signPos = signup.position?.let { "#$it" } ?: "-"
-            val marker = if (signup.userId == callerId) " ←" else ""
-            " %-3d %s %s  %-4s%s".format(pos, name, cls, signPos, marker)
-        }
-        return "```\n$header\n$separator\n${rows.joinToString("\n")}\n```\n"
+    private fun formatEntry(pos: Int, signup: SignUp, callerId: String): String {
+        val signPos = signup.position?.let { " : $it" } ?: ""
+        return if (signup.userId == callerId)
+            "$pos. **${signup.name}** (${signup.className})$signPos ← deg"
+        else
+            "$pos. ${signup.name} (${signup.className})$signPos"
     }
 }
