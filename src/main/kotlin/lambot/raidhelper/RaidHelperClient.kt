@@ -23,10 +23,13 @@ class RaidHelperClient(private val properties: RaidHelperProperties) {
         val now = Instant.now().epochSecond
         val response = client.get()
             .uri("/v3/servers/${properties.serverId}/events?StartTimeFilter=$now&Page=1")
-            .header("IncludeSignUps", "true")
             .retrieve()
             .body(EventsResponse::class.java)
-        return response?.postedEvents?.firstOrNull { it.channelId == channelId }
+        val eventId = response?.postedEvents?.firstOrNull { it.channelId == channelId }?.id ?: return null
+        return client.get()
+            .uri("/v2/events/$eventId")
+            .retrieve()
+            .body(RaidEvent::class.java)
     }
 
     fun createEvent(request: CreateEventRequest, channelId: String) {
