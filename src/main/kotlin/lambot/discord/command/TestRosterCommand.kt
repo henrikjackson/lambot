@@ -3,16 +3,19 @@ package lambot.discord.command
 import dev.kord.core.Kord
 import dev.kord.core.behavior.interaction.respondEphemeral
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
+import lambot.config.DiscordProperties
 import lambot.raidhelper.RosterService
 import lambot.raidhelper.SignUp
 import org.springframework.stereotype.Component
 
 @Component
 class TestRosterCommand(
-    private val rosterService: RosterService
+    private val rosterService: RosterService,
+    private val discordProperties: DiscordProperties
 ) : SlashCommand {
     override val name = "test-roster"
     override val description = "Test rosteret med dummy-data (35 påmeldinger)"
+    override val requiredRoleIds: Set<String> get() = discordProperties.allowedRoleIds.toSet()
 
     override suspend fun register(kord: Kord) {}
 

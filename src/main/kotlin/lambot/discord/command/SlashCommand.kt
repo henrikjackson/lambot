@@ -7,6 +7,7 @@ import dev.kord.rest.builder.interaction.BaseInputChatBuilder
 interface SlashCommand {
     val name: String
     val description: String
+    val requiredRoleIds: Set<String> get() = emptySet()
 
     suspend fun register(kord: Kord)
 

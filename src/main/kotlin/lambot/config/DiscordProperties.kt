@@ -8,4 +8,5 @@ import org.springframework.context.annotation.Configuration
 class DiscordProperties {
     lateinit var token: String
     lateinit var guildId: String
+    var allowedRoleIds: List<String> = emptyList()
 }
