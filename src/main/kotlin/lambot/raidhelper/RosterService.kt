@@ -1,5 +1,6 @@
 package lambot.raidhelper
 
+import lambot.config.RaidHelperProperties
 import org.springframework.stereotype.Service
 
 sealed class RosterResult {
@@ -14,34 +15,32 @@ data class FullRoster(
 )
 
 @Service
-class RosterService {
-
-    private val jacksonName = "Jackson(Iamnorsk)"
+class RosterService(private val properties: RaidHelperProperties) {
 
     fun buildRoster(signUps: List<SignUp>): FullRoster {
         val active = signUps.filter { it.className != "Absence" }
         val sorted = active.sortedWith(compareBy({ it.position ?: Int.MAX_VALUE }, { it.entryTime }))
 
-        val jackson = sorted.firstOrNull { it.name == jacksonName }
-        val withoutJackson = sorted.filter { it.name != jacksonName }
+        val leader = sorted.firstOrNull { it.userId == properties.leaderId }
+        val withoutLeader = sorted.filter { it.userId != properties.leaderId }
 
         val roster = mutableListOf<SignUp>()
         val placedIds = mutableSetOf<String>()
 
-        if (jackson != null) {
-            roster.add(jackson)
-            placedIds.add(jackson.userId)
+        if (leader != null) {
+            roster.add(leader)
+            placedIds.add(leader.userId)
         }
 
-        withoutJackson.filter { it.className == "Tank" }.take(2).forEach {
+        withoutLeader.filter { it.className == "Tank" }.take(2).forEach {
             if (placedIds.add(it.userId)) roster.add(it)
         }
 
-        withoutJackson.filter { it.className == "Healer" }.take(6).forEach {
+        withoutLeader.filter { it.className == "Healer" }.take(6).forEach {
             if (placedIds.add(it.userId)) roster.add(it)
         }
 
-        for (signup in withoutJackson) {
+        for (signup in withoutLeader) {
             if (roster.size >= 30) break
             if (placedIds.add(signup.userId)) roster.add(signup)
         }
