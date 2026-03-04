@@ -44,28 +44,33 @@ class HvemHarPlassCommand(
 
         val (roster, bench) = rosterService.buildRoster(nextEvent.signUps.orEmpty())
 
-        fun formatEntry(index: Int, signup: SignUp): String {
-            val num = index + 1
-            val label = if (signup.userId == userId)
-                "**${signup.name}** (${signup.className}) ← deg"
-            else
-                "${signup.name} (${signup.className})"
-            return "$num. $label"
-        }
-
         val sb = StringBuilder()
         sb.appendLine("**${nextEvent.title}**")
         sb.appendLine()
         sb.appendLine("**I raidet (${roster.size}):**")
-        if (roster.isEmpty()) sb.appendLine("_Ingen påmeldt enda._")
-        else roster.forEachIndexed { i, s -> sb.appendLine(formatEntry(i, s)) }
+        sb.append(formatTable(roster.mapIndexed { i, s -> i + 1 to s }, userId))
 
         if (bench.isNotEmpty()) {
             sb.appendLine()
             sb.appendLine("**Benk (${bench.size}):**")
-            bench.forEachIndexed { i, s -> sb.appendLine(formatEntry(i, s)) }
+            sb.append(formatTable(bench.mapIndexed { i, s -> i + 1 to s }, userId))
         }
 
         event.interaction.respondEphemeral { content = sb.toString().trimEnd() }
+    }
+
+    private fun formatTable(entries: List<Pair<Int, SignUp>>, callerId: String): String {
+        val nameWidth = 20
+        val classWidth = 10
+        val header = " #   ${"Navn".padEnd(nameWidth)} ${"Klasse".padEnd(classWidth)}  Sign"
+        val separator = "-".repeat(header.length)
+        val rows = entries.map { (pos, signup) ->
+            val name = signup.name.take(nameWidth).padEnd(nameWidth)
+            val cls = signup.className.take(classWidth).padEnd(classWidth)
+            val signPos = signup.position?.let { "#$it" } ?: "-"
+            val marker = if (signup.userId == callerId) " ←" else ""
+            " %-3d %s %s  %-4s%s".format(pos, name, cls, signPos, marker)
+        }
+        return "```\n$header\n$separator\n${rows.joinToString("\n")}\n```\n"
     }
 }
