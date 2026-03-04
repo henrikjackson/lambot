@@ -20,7 +20,7 @@ class EventScheduler(
 ) {
     private val logger = LoggerFactory.getLogger(EventScheduler::class.java)
 
-    @Scheduled(cron = "0 50 16 * * WED", zone = "Europe/Oslo")
+    @Scheduled(cron = "0 0 22 * * WED", zone = "Europe/Oslo")
     fun scheduleNextWednesdayEvent() {
         scheduleRaidOn(DayOfWeek.WEDNESDAY, properties.wednesdayChannelId, "https://i.imgur.com/BPmucLG.jpeg")
     }

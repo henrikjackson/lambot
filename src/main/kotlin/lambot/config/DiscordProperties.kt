@@ -9,4 +9,5 @@ class DiscordProperties {
     lateinit var token: String
     lateinit var guildId: String
     var allowedRoleIds: List<String> = emptyList()
+    var commandsEnabled: Boolean = true
 }
