@@ -43,8 +43,7 @@ class BotStartup(
 
         botJob = scope.launch {
             val instance = Kord(properties.token)
-
-            val guildId = Snowflake("784044051791478796")
+            val guildId = Snowflake(properties.guildId)
 
             listeners.forEach { listener ->
                 listener.register(instance)
@@ -52,11 +51,9 @@ class BotStartup(
             }
 
             commands.forEach { command ->
-                instance.createGuildChatInputCommand(
-                    guildId,
-                    command.name,
-                    "Command ${command.name} description"
-                )
+                instance.createGuildChatInputCommand(guildId, command.name, command.description) {
+                    command.buildOptions(this)
+                }
                 command.register(instance)
             }
 
@@ -75,9 +72,7 @@ class BotStartup(
     @PreDestroy
     fun shutdown() {
         logger.info("Shutting down bot...")
-
         botJob?.cancel()
-
         supervisor.cancel()
     }
 }

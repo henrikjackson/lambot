@@ -1,19 +1,11 @@
 discord:
   token: ${DISCORD_TOKEN}
+  guild-id: ${DISCORD_GUILD_ID:1478736856144412724}
 
-bot:
-  schedule:
-    channel-id: 784044052248133633
-    guild-id: 784044051791478796
-    cron: "0 0 18 ? * TUE,SAT"
+raidhelper:
+  api-key: ${RAIDHELPER_API_KEY}
+  server-id: ${RAIDHELPER_SERVER_ID}
+  channel-id: ${RAIDHELPER_CHANNEL_ID}
+  leader-id: ${RAIDHELPER_LEADER_ID}
+  template-id: ${RAIDHELPER_TEMPLATE_ID}
 
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5555/lambot?sslmode=disable
-    username: postgres
-    password: postgres
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true

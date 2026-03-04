@@ -1,3 +1,2 @@
-bot:
-  schedule:
-    cron: "1 * * * * ?"
+raidhelper:
+  api-key: local-dev-key
