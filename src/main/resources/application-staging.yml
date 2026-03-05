@@ -1,0 +1,12 @@
+raidhelper:
+  api-key: local-dev-key
+
+discord:
+  role-message-channel-id: "1479082585530564658"
+  role-assignments:
+    - emoji: "💀"
+      role-id: "1479083679967084544"
+    - emoji: "🔥"
+      role-id: "1479083738569638040"
+    - emoji: "🐤"
+      role-id: "1479083773671899177"
