@@ -10,10 +10,8 @@ discord:
   role-assignments:
     - emoji: "💀"
       role-id: "1479103112806666384"
-    - emoji: "🔥"
-      role-id: "1479103237989859410"
     - emoji: "🐤"
-      role-id: "1479103432156774410"
+      role-id: "1479103237989859410"
 
 raidhelper:
   api-key: ${RAIDHELPER_API_KEY}

@@ -3,7 +3,5 @@ discord:
   role-assignments:
     - emoji: "💀"
       role-id: "1479126198016671906"
-    - emoji: "🔥"
-      role-id: "1479126226693259367"
     - emoji: "🐤"
-      role-id: "1479126248730001601"
+      role-id: "1479126226693259367"
