@@ -32,15 +32,20 @@ class RosterService(private val properties: RaidHelperProperties) {
             placedIds.add(leader.userId)
         }
 
-        withoutLeader.filter { it.className == "Tank" }.take(2).forEach {
-            if (placedIds.add(it.userId)) roster.add(it)
-        }
+        val priorityTankIds = withoutLeader.filter { it.className == "Tank" }.take(2)
+            .onEach { if (placedIds.add(it.userId)) roster.add(it) }
+            .map { it.userId }.toSet()
 
         withoutLeader.filter { it.className == "Healer" }.take(6).forEach {
             if (placedIds.add(it.userId)) roster.add(it)
         }
 
-        for (signup in withoutLeader) {
+        val generalOrder = withoutLeader.sortedWith(compareBy(
+            { if (it.className == "Tank" && it.userId !in priorityTankIds) Int.MAX_VALUE else (it.position ?: Int.MAX_VALUE) },
+            { it.entryTime }
+        ))
+
+        for (signup in generalOrder) {
             if (roster.size >= 30) break
             if (placedIds.add(signup.userId)) roster.add(signup)
         }
