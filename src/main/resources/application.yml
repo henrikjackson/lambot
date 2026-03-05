@@ -10,7 +10,7 @@ discord:
   role-assignments:
     - emoji: "💀"
       role-id: "1479103112806666384"
-    - emoji: "🐤"
+    - emoji: "👶"
       role-id: "1479103237989859410"
 
 raidhelper:
