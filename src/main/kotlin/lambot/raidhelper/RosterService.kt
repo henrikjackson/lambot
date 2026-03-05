@@ -32,7 +32,8 @@ class RosterService(private val properties: RaidHelperProperties) {
             placedIds.add(leader.userId)
         }
 
-        val priorityTankIds = withoutLeader.filter { it.className == "Tank" }.take(2)
+        val leaderTankCount = if (leader?.className == "Tank") 1 else 0
+        val priorityTankIds = withoutLeader.filter { it.className == "Tank" }.take(2 - leaderTankCount)
             .onEach { if (placedIds.add(it.userId)) roster.add(it) }
             .map { it.userId }.toSet()
 
