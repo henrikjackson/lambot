@@ -1,5 +1,6 @@
 package lambot.discord.scheduler
 
+import lambot.config.FeaturesProperties
 import lambot.config.RaidHelperProperties
 import lambot.raidhelper.AdvancedSettings
 import lambot.raidhelper.CreateEventRequest
@@ -16,7 +17,8 @@ import java.time.temporal.TemporalAdjusters
 @Component
 class EventScheduler(
     private val raidHelperClient: RaidHelperClient,
-    private val properties: RaidHelperProperties
+    private val properties: RaidHelperProperties,
+    private val features: FeaturesProperties
 ) {
     private val logger = LoggerFactory.getLogger(EventScheduler::class.java)
 
@@ -31,7 +33,7 @@ class EventScheduler(
     }
 
     private fun scheduleRaidOn(day: DayOfWeek, channelId: String, imageUrl: String) {
-        if (!properties.autoCreateEvents) {
+        if (!features.autoCreateEvents) {
             logger.info("Auto-create events is disabled, skipping.")
             return
         }

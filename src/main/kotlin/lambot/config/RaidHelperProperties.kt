@@ -13,5 +13,4 @@ class RaidHelperProperties {
     lateinit var sundayChannelId: String
     lateinit var leaderId: String
     lateinit var templateId: String
-    var autoCreateEvents: Boolean = true
 }

@@ -5,7 +5,8 @@ discord:
   token: ${DISCORD_TOKEN}
   guild-id: ${DISCORD_GUILD_ID:1478736856144412724}
   allowed-role-ids: ${DISCORD_ALLOWED_ROLE_IDS:}
-  commands-enabled: ${DISCORD_COMMANDS_ENABLED:true}
+  role-message-channel-id: ${DISCORD_ROLE_MESSAGE_CHANNEL_ID:}
+  role-assignments:
 
 raidhelper:
   api-key: ${RAIDHELPER_API_KEY}
@@ -14,5 +15,9 @@ raidhelper:
   sunday-channel-id: ${RAIDHELPER_SUNDAY_CHANNEL_ID}
   leader-id: ${RAIDHELPER_LEADER_ID}
   template-id: ${RAIDHELPER_TEMPLATE_ID}
-  auto-create-events: ${RAIDHELPER_AUTO_CREATE_EVENTS:true}
+
+features:
+  commands: ${FEATURES_COMMANDS:true}
+  auto-create-events: ${FEATURES_AUTO_CREATE_EVENTS:true}
+  reaction-roles: ${FEATURES_REACTION_ROLES:true}
 
