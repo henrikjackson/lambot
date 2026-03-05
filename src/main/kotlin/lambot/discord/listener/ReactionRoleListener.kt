@@ -3,6 +3,7 @@ package lambot.discord.listener
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.entity.ReactionEmoji
+import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
 import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.event.message.ReactionAddEvent
@@ -22,7 +23,7 @@ class ReactionRoleListener(
 
     private val logger = LoggerFactory.getLogger(ReactionRoleListener::class.java)
 
-    private val marker = "**Rolleoppdrag**"
+    private val marker = "**Hva vil du raide i Midnight?**"
 
     @Volatile
     private var roleMessageId: Snowflake? = null
@@ -51,9 +52,23 @@ class ReactionRoleListener(
             val guildId = this.guildId ?: return@on
 
             try {
-                val member = kord.getGuildOrNull(guildId)?.getMemberOrNull(userId) ?: return@on
+                val guild = kord.getGuildOrNull(guildId) ?: return@on
+                val member = guild.getMemberOrNull(userId) ?: return@on
+                val message = (kord.getChannelOf<MessageChannel>(channelId))?.getMessageOrNull(messageId)
+
+                // Remove all other bot-managed roles and their reactions before assigning the new one
+                properties.roleAssignments
+                    .filter { it.roleId != assignment.roleId && Snowflake(it.roleId) in member.roleIds }
+                    .forEach { other ->
+                        val otherRoleName = guild.getRoleOrNull(Snowflake(other.roleId))?.name ?: other.roleId
+                        member.removeRole(Snowflake(other.roleId))
+                        message?.deleteReaction(userId, ReactionEmoji.Unicode(other.emoji))
+                        logger.info("Removed conflicting role $otherRoleName from user ${member.effectiveName} ($userId)")
+                    }
+
+                val roleName = guild.getRoleOrNull(Snowflake(assignment.roleId))?.name ?: assignment.roleId
                 member.addRole(Snowflake(assignment.roleId))
-                logger.info("Added role ${assignment.roleId} to user $userId")
+                logger.info("Added role $roleName to user ${member.effectiveName} ($userId)")
             } catch (e: Exception) {
                 logger.error("Failed to add role ${assignment.roleId} to user $userId: ${e.message}", e)
             }
@@ -68,9 +83,11 @@ class ReactionRoleListener(
             val guildId = this.guildId ?: return@on
 
             try {
-                val member = kord.getGuildOrNull(guildId)?.getMemberOrNull(userId) ?: return@on
+                val guild = kord.getGuildOrNull(guildId) ?: return@on
+                val member = guild.getMemberOrNull(userId) ?: return@on
+                val roleName = guild.getRoleOrNull(Snowflake(assignment.roleId))?.name ?: assignment.roleId
                 member.removeRole(Snowflake(assignment.roleId))
-                logger.info("Removed role ${assignment.roleId} from user $userId")
+                logger.info("Removed role $roleName from user ${member.effectiveName} ($userId)")
             } catch (e: Exception) {
                 logger.error("Failed to remove role ${assignment.roleId} from user $userId: ${e.message}", e)
             }
@@ -102,9 +119,13 @@ class ReactionRoleListener(
             appendLine(marker)
             appendLine("React med en emoji for å få en rolle:")
             appendLine()
-            roleLines.forEach { appendLine(it) }
+            roleLines.forEach { appendLine("**$it**") }
             appendLine()
-            append("_Fjern reaksjonen din for å miste rollen._")
+            appendLine("Mythic-rollen kommer til å tagges før hver Mythic-raid for å finne ut hvem som kan delta.")
+            appendLine()
+            appendLine("Du kan endre prefesanse når du vil!")
+            appendLine()
+            append("_Fjern reaksjonen din for å fjerne rollen. Ikke spam ned med reaksjoner!_")
         }
 
         val message = channel.createMessage(content)
