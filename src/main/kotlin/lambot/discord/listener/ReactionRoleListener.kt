@@ -13,6 +13,7 @@ import lambot.config.FeaturesProperties
 import lambot.discord.role.RoleMessageService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class ReactionRoleListener(
@@ -22,6 +23,9 @@ class ReactionRoleListener(
 ) : DiscordListener {
 
     private val logger = LoggerFactory.getLogger(ReactionRoleListener::class.java)
+
+    private val cooldowns = ConcurrentHashMap<Snowflake, Long>()
+    private val cooldownMs = 5_000L
 
     override fun register(kord: Kord) {
         if (!features.reactionRoles) {
@@ -40,6 +44,14 @@ class ReactionRoleListener(
         kord.on<ReactionAddEvent> {
             val msgId = roleMessageService.roleMessageId ?: return@on
             if (messageId != msgId || userId == kord.selfId) return@on
+
+            val now = System.currentTimeMillis()
+            val last = cooldowns[userId] ?: 0L
+            if (now - last < cooldownMs) {
+                logger.info("Rate limited reaction from $userId (${now - last}ms since last)")
+                return@on
+            }
+            cooldowns[userId] = now
 
             val emojiName = (emoji as? ReactionEmoji.Unicode)?.name ?: return@on
             val assignment = properties.roleAssignments.find { it.emoji == emojiName } ?: return@on
@@ -72,6 +84,14 @@ class ReactionRoleListener(
         kord.on<ReactionRemoveEvent> {
             val msgId = roleMessageService.roleMessageId ?: return@on
             if (messageId != msgId) return@on
+
+            val now = System.currentTimeMillis()
+            val last = cooldowns[userId] ?: 0L
+            if (now - last < cooldownMs) {
+                logger.info("Rate limited reaction removal from $userId (${now - last}ms since last)")
+                return@on
+            }
+            cooldowns[userId] = now
 
             val emojiName = (emoji as? ReactionEmoji.Unicode)?.name ?: return@on
             val assignment = properties.roleAssignments.find { it.emoji == emojiName } ?: return@on

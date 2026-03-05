@@ -1,7 +1,8 @@
 package lambot.discord.command
 
 import dev.kord.core.Kord
-import dev.kord.core.behavior.interaction.response.respond
+import dev.kord.core.behavior.interaction.respondEphemeral
+import dev.kord.core.behavior.interaction.response.edit
 import dev.kord.core.entity.interaction.SubCommand
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.rest.builder.interaction.RootInputChatBuilder
@@ -43,14 +44,14 @@ class AdminCommand(
 
     private suspend fun handleRefresh(event: GuildChatInputCommandInteractionCreateEvent) {
         val kord = this.kord ?: return
-        val deferred = event.interaction.deferEphemeralResponse()
+        val response = event.interaction.respondEphemeral { content = "Oppdaterer..." }
         try {
             roleMessageService.refresh(kord)
-            deferred.respond { content = "Rolleoppdragsmelding er oppdatert." }
             logger.info("Role message refreshed by ${event.interaction.user.username}")
+            response.edit { content = "Rolleoppdragsmelding er oppdatert." }
         } catch (e: Exception) {
-            deferred.respond { content = "Noe gikk galt: ${e.message}" }
             logger.error("Failed to refresh role message: ${e.message}", e)
+            response.edit { content = "Noe gikk galt: ${e.message}" }
         }
     }
 }

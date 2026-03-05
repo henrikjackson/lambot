@@ -51,10 +51,15 @@ class BotStartup(
             }
 
             commands.forEach { command ->
-                instance.createGuildChatInputCommand(guildId, command.name, command.description) {
-                    command.buildOptions(this)
+                try {
+                    instance.createGuildChatInputCommand(guildId, command.name, command.description) {
+                        command.buildOptions(this)
+                    }
+                    command.register(instance)
+                    logger.info("Registered command: ${command.name}")
+                } catch (e: Exception) {
+                    logger.error("Failed to register command '${command.name}': ${e.message}", e)
                 }
-                command.register(instance)
             }
 
             kord = instance

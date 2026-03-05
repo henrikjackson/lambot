@@ -1,12 +1,9 @@
-raidhelper:
-  api-key: local-dev-key
-
 discord:
-  role-message-channel-id: "1479082585530564658"
+  allowed-guild-ids: ${DISCORD_ALLOWED_GUILD_IDS:1479120096306794620}
   role-assignments:
     - emoji: "💀"
-      role-id: "1479083679967084544"
+      role-id: "1479126198016671906"
     - emoji: "🔥"
-      role-id: "1479083738569638040"
+      role-id: "1479126226693259367"
     - emoji: "🐤"
-      role-id: "1479083773671899177"
+      role-id: "1479126248730001601"

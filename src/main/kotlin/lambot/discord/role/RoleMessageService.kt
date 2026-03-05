@@ -64,7 +64,7 @@ class RoleMessageService(
 
         val content = buildString {
             appendLine(marker)
-            appendLine("React med en emoji for å få en rolle:")
+            appendLine("Reager med emoji for å få en rolle:")
             appendLine()
             roleLines.forEach { appendLine("**$it**") }
             appendLine()
@@ -72,7 +72,7 @@ class RoleMessageService(
             appendLine()
             appendLine("Du kan endre prefesanse når du vil!")
             appendLine()
-            append("_Fjern reaksjonen din for å fjerne rollen. Ikke spam ned med reaksjoner! Dobbeltsjekk egen bruker om du har fått riktig rolle_")
+            append("_Velg bare én! Fjern reaksjonen din for å fjerne rollen. Ikke spam ned med reaksjoner! Dobbeltsjekk egen bruker om du har fått riktig rolle_")
         }
 
         val message = channel.createMessage(content)
