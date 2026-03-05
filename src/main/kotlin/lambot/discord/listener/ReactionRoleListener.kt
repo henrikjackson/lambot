@@ -58,12 +58,14 @@ class ReactionRoleListener(
 
                 // Remove all other bot-managed roles and their reactions before assigning the new one
                 properties.roleAssignments
-                    .filter { it.roleId != assignment.roleId && Snowflake(it.roleId) in member.roleIds }
+                    .filter { it.roleId != assignment.roleId }
                     .forEach { other ->
-                        val otherRoleName = guild.getRoleOrNull(Snowflake(other.roleId))?.name ?: other.roleId
-                        member.removeRole(Snowflake(other.roleId))
                         message?.deleteReaction(userId, ReactionEmoji.Unicode(other.emoji))
-                        logger.info("Removed conflicting role $otherRoleName from user ${member.effectiveName} ($userId)")
+                        if (Snowflake(other.roleId) in member.roleIds) {
+                            val otherRoleName = guild.getRoleOrNull(Snowflake(other.roleId))?.name ?: other.roleId
+                            member.removeRole(Snowflake(other.roleId))
+                            logger.info("Removed conflicting role $otherRoleName from user ${member.effectiveName} ($userId)")
+                        }
                     }
 
                 val roleName = guild.getRoleOrNull(Snowflake(assignment.roleId))?.name ?: assignment.roleId
