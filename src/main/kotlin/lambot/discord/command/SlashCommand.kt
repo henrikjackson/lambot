@@ -2,7 +2,7 @@ package lambot.discord.command
 
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import dev.kord.rest.builder.interaction.BaseInputChatBuilder
+import dev.kord.rest.builder.interaction.RootInputChatBuilder
 
 interface SlashCommand {
     val name: String
@@ -11,7 +11,7 @@ interface SlashCommand {
 
     suspend fun register(kord: Kord)
 
-    fun buildOptions(builder: BaseInputChatBuilder) {}
+    fun buildOptions(builder: RootInputChatBuilder) {}
 
     suspend fun handle(event: GuildChatInputCommandInteractionCreateEvent)
 }

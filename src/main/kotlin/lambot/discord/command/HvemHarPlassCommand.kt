@@ -3,7 +3,7 @@ package lambot.discord.command
 import dev.kord.core.Kord
 import dev.kord.core.behavior.interaction.respondEphemeral
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import dev.kord.rest.builder.interaction.BaseInputChatBuilder
+import dev.kord.rest.builder.interaction.RootInputChatBuilder
 import dev.kord.rest.builder.interaction.string
 import lambot.raidhelper.RaidHelperClient
 import lambot.raidhelper.RosterService
@@ -19,7 +19,7 @@ class HvemHarPlassCommand(
     override val name = "hvem-har-plass"
     override val description = "Se hvem som har plass i neste raid"
 
-    override fun buildOptions(builder: BaseInputChatBuilder) {
+    override fun buildOptions(builder: RootInputChatBuilder) {
         builder.string("dag", "Hvilken dag?") {
             required = true
             choice("Onsdag", "wednesday")

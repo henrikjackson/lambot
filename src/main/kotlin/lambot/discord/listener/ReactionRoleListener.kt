@@ -4,29 +4,24 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.channel.MessageChannel
-import dev.kord.core.entity.channel.TextChannel
 import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
 import dev.kord.core.on
-import kotlinx.coroutines.flow.firstOrNull
 import lambot.config.DiscordProperties
 import lambot.config.FeaturesProperties
+import lambot.discord.role.RoleMessageService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
 class ReactionRoleListener(
     private val properties: DiscordProperties,
-    private val features: FeaturesProperties
+    private val features: FeaturesProperties,
+    private val roleMessageService: RoleMessageService
 ) : DiscordListener {
 
     private val logger = LoggerFactory.getLogger(ReactionRoleListener::class.java)
-
-    private val marker = "**Hva vil du raide i Midnight?**"
-
-    @Volatile
-    private var roleMessageId: Snowflake? = null
 
     override fun register(kord: Kord) {
         if (!features.reactionRoles) {
@@ -39,12 +34,11 @@ class ReactionRoleListener(
         }
 
         kord.on<ReadyEvent> {
-            roleMessageId = findOrCreateRoleMessage(kord)
-            logger.info("Role message ID set to: $roleMessageId")
+            roleMessageService.initialize(kord)
         }
 
         kord.on<ReactionAddEvent> {
-            val msgId = roleMessageId ?: return@on
+            val msgId = roleMessageService.roleMessageId ?: return@on
             if (messageId != msgId || userId == kord.selfId) return@on
 
             val emojiName = (emoji as? ReactionEmoji.Unicode)?.name ?: return@on
@@ -54,9 +48,8 @@ class ReactionRoleListener(
             try {
                 val guild = kord.getGuildOrNull(guildId) ?: return@on
                 val member = guild.getMemberOrNull(userId) ?: return@on
-                val message = (kord.getChannelOf<MessageChannel>(channelId))?.getMessageOrNull(messageId)
+                val message = kord.getChannelOf<MessageChannel>(channelId)?.getMessageOrNull(messageId)
 
-                // Remove all other bot-managed roles and their reactions before assigning the new one
                 properties.roleAssignments
                     .filter { it.roleId != assignment.roleId }
                     .forEach { other ->
@@ -77,7 +70,7 @@ class ReactionRoleListener(
         }
 
         kord.on<ReactionRemoveEvent> {
-            val msgId = roleMessageId ?: return@on
+            val msgId = roleMessageService.roleMessageId ?: return@on
             if (messageId != msgId) return@on
 
             val emojiName = (emoji as? ReactionEmoji.Unicode)?.name ?: return@on
@@ -94,47 +87,5 @@ class ReactionRoleListener(
                 logger.error("Failed to remove role ${assignment.roleId} from user $userId: ${e.message}", e)
             }
         }
-    }
-
-    private suspend fun findOrCreateRoleMessage(kord: Kord): Snowflake? {
-        val channelId = Snowflake(properties.roleMessageChannelId)
-        val channel = kord.getChannelOf<TextChannel>(channelId) ?: run {
-            logger.error("Role message channel not found: ${properties.roleMessageChannelId}")
-            return null
-        }
-        val guild = kord.getGuildOrNull(Snowflake(properties.guildId)) ?: return null
-
-        val existing = channel.getMessagesBefore(Snowflake.max, 50)
-            .firstOrNull { it.author?.id == kord.selfId && it.content.startsWith(marker) }
-
-        if (existing != null) {
-            logger.info("Reusing existing role message: ${existing.id}")
-            return existing.id
-        }
-
-        val roleLines = properties.roleAssignments.mapNotNull { assignment ->
-            val roleName = guild.getRoleOrNull(Snowflake(assignment.roleId))?.name ?: return@mapNotNull null
-            "${assignment.emoji} – $roleName"
-        }
-
-        val content = buildString {
-            appendLine(marker)
-            appendLine("React med en emoji for å få en rolle:")
-            appendLine()
-            roleLines.forEach { appendLine("**$it**") }
-            appendLine()
-            appendLine("Mythic-rollen kommer til å tagges før hver Mythic-raid for å finne ut hvem som kan delta.")
-            appendLine()
-            appendLine("Du kan endre prefesanse når du vil!")
-            appendLine()
-            append("_Fjern reaksjonen din for å fjerne rollen. Ikke spam ned med reaksjoner! Dobbeltsjekk egen bruker om du har fått riktig rolle_")
-        }
-
-        val message = channel.createMessage(content)
-        properties.roleAssignments.forEach { assignment ->
-            message.addReaction(ReactionEmoji.Unicode(assignment.emoji))
-        }
-        logger.info("Posted new role message: ${message.id}")
-        return message.id
     }
 }
