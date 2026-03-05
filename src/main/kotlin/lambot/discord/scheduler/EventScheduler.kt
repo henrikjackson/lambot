@@ -24,15 +24,15 @@ class EventScheduler(
 
     @Scheduled(cron = "0 0 22 * * WED", zone = "Europe/Oslo")
     fun scheduleNextWednesdayEvent() {
-        scheduleRaidOn(DayOfWeek.WEDNESDAY, properties.wednesdayChannelId, "https://i.imgur.com/BPmucLG.jpeg")
+        scheduleRaidOn(DayOfWeek.WEDNESDAY, properties.wednesdayChannelId, "https://i.imgur.com/BPmucLG.jpeg", "Onsdagsraid")
     }
 
     @Scheduled(cron = "0 0 22 * * SUN", zone = "Europe/Oslo")
     fun scheduleNextSundayEvent() {
-        scheduleRaidOn(DayOfWeek.SUNDAY, properties.sundayChannelId, "https://i.imgur.com/b89yUFX.jpeg")
+        scheduleRaidOn(DayOfWeek.SUNDAY, properties.sundayChannelId, "https://i.imgur.com/b89yUFX.jpeg", "Sondagsraid")
     }
 
-    private fun scheduleRaidOn(day: DayOfWeek, channelId: String, imageUrl: String) {
+    private fun scheduleRaidOn(day: DayOfWeek, channelId: String, imageUrl: String, title: String) {
         if (!features.autoCreateEvents) {
             logger.info("Auto-create events is disabled, skipping.")
             return
@@ -40,7 +40,6 @@ class EventScheduler(
         val nextDay = LocalDate.now().with(TemporalAdjusters.next(day))
         val raidTime = LocalDateTime.of(nextDay.year, nextDay.month, nextDay.dayOfMonth, 19, 0)
         val unixTimestamp = raidTime.atZone(ZoneId.of("Europe/Oslo")).toEpochSecond().toString()
-        val title = "Raid - ${nextDay.dayOfMonth}.${nextDay.monthValue}.${nextDay.year}"
 
         try {
             raidHelperClient.createEvent(
