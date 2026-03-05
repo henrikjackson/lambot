@@ -6,7 +6,6 @@ discord:
   guild-id: ${DISCORD_GUILD_ID:1478736856144412724}
   allowed-role-ids: ${DISCORD_ALLOWED_ROLE_IDS:}
   role-message-channel-id: ${DISCORD_ROLE_MESSAGE_CHANNEL_ID:}
-  role-assignments:
 
 raidhelper:
   api-key: ${RAIDHELPER_API_KEY}
