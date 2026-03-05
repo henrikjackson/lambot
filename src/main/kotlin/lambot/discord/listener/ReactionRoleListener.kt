@@ -127,7 +127,7 @@ class ReactionRoleListener(
             appendLine()
             appendLine("Du kan endre prefesanse når du vil!")
             appendLine()
-            append("_Fjern reaksjonen din for å fjerne rollen. Ikke spam ned med reaksjoner!_")
+            append("_Fjern reaksjonen din for å fjerne rollen. Ikke spam ned med reaksjoner! Dobbeltsjekk egen bruker om du har fått riktig rolle_")
         }
 
         val message = channel.createMessage(content)

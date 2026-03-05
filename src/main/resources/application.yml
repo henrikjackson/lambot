@@ -5,6 +5,7 @@ discord:
   token: ${DISCORD_TOKEN}
   guild-id: ${DISCORD_GUILD_ID:1478736856144412724}
   allowed-role-ids: ${DISCORD_ALLOWED_ROLE_IDS:}
+  allowed-guild-ids: ${DISCORD_ALLOWED_GUILD_IDS:}
   role-message-channel-id: ${DISCORD_ROLE_MESSAGE_CHANNEL_ID:}
   role-assignments:
     - emoji: "💀"

@@ -9,6 +9,7 @@ class DiscordProperties {
     lateinit var token: String
     lateinit var guildId: String
     var allowedRoleIds: List<String> = emptyList()
+    var allowedGuildIds: List<String> = emptyList()
     var roleMessageChannelId: String = ""
     var roleAssignments: List<RoleAssignment> = emptyList()
 
