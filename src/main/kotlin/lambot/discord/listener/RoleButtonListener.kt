@@ -8,7 +8,9 @@ import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.event.interaction.GuildButtonInteractionCreateEvent
 import dev.kord.core.event.interaction.GuildSelectMenuInteractionCreateEvent
 import dev.kord.core.on
+import dev.kord.common.entity.DiscordPartialEmoji
 import dev.kord.rest.builder.component.SelectOptionBuilder
+import kotlinx.coroutines.flow.toList
 import dev.kord.rest.builder.message.actionRow
 import lambot.config.DiscordProperties
 import lambot.config.FeaturesProperties
@@ -67,7 +69,7 @@ class RoleButtonListener(
         kord.on<GuildSelectMenuInteractionCreateEvent> {
             val componentId = interaction.componentId
             when {
-                componentId == "mythic-class" -> handleClassSelect(this)
+                componentId == "mythic-class" -> handleClassSelect(kord, this)
                 componentId.startsWith("mythic-spec:") -> handleSpecSelect(kord, this, componentId.removePrefix("mythic-spec:"))
             }
         }
@@ -94,10 +96,13 @@ class RoleButtonListener(
         }
     }
 
-    private suspend fun handleClassSelect(event: GuildSelectMenuInteractionCreateEvent) {
+    private suspend fun handleClassSelect(kord: Kord, event: GuildSelectMenuInteractionCreateEvent) {
         val classKey = event.interaction.values.firstOrNull() ?: return
         val className = WowClasses.fromKey(classKey) ?: return
         val specs = WowClasses.specsFor(classKey)
+
+        val guild = kord.getGuildOrNull(event.interaction.guildId)
+        val emojiMap = guild?.emojis?.toList()?.associateBy { it.name } ?: emptyMap()
 
         event.interaction.respondEphemeral {
             content = "Velg spec for **$className**:"
@@ -105,7 +110,14 @@ class RoleButtonListener(
                 stringSelect("mythic-spec:$classKey") {
                     placeholder = "Velg spec..."
                     specs.forEach { spec ->
-                        options.add(SelectOptionBuilder(spec, spec.lowercase().replace(" ", "-")))
+                        val specKey = spec.lowercase().replace(" ", "-")
+                        options.add(SelectOptionBuilder(spec, specKey).apply {
+                            val emojiName = WowClasses.specEmojiName(className, spec)
+                            val guildEmoji = emojiMap[emojiName]
+                            if (guildEmoji != null) {
+                                emoji = DiscordPartialEmoji(id = guildEmoji.id, name = guildEmoji.name)
+                            }
+                        })
                     }
                 }
             }

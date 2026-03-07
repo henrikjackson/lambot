@@ -5,7 +5,9 @@ import dev.kord.core.Kord
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.GuildEmoji
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import lambot.config.DiscordProperties
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -53,6 +55,8 @@ class MythicRosterService(
             return "$marker\n\n_Ingen Mythic-raiders registrert enda._"
         }
 
+        val emojiMap = guild.emojis.toList().associateBy { it.name }
+
         data class Entry(val userId: String, val name: String, val wowSpec: String, val wowClass: String, val role: WowRole)
 
         val entries = userData.values
@@ -75,10 +79,19 @@ class MythicRosterService(
                     .forEach { (role, group) ->
                         appendLine()
                         appendLine("**${role.label} (${group.size}):**")
-                        group.forEach { appendLine("<@${it.userId}> — ${it.wowSpec} ${it.wowClass}") }
+                        group.forEach {
+                            val emoji = emojiString(emojiMap, it.wowClass, it.wowSpec)
+                            appendLine("$emoji<@${it.userId}> — ${it.wowSpec} ${it.wowClass}")
+                        }
                     }
             }
         }.trimEnd()
+    }
+
+    private fun emojiString(emojiMap: Map<String?, GuildEmoji>, className: String, specName: String): String {
+        val name = WowClasses.specEmojiName(className, specName) ?: return ""
+        val emoji = emojiMap[name] ?: return ""
+        return "<:${emoji.name}:${emoji.id}> "
     }
 
     private suspend fun findOrCreate(kord: Kord): Snowflake? {
