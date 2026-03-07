@@ -1,7 +1,12 @@
 discord:
   allowed-guild-ids: ${DISCORD_ALLOWED_GUILD_IDS:1479120096306794620}
+  mythic-roster-channel-id: "1479899733677047818"
   role-assignments:
     - emoji: "💀"
       role-id: "1479126198016671906"
+      label: "Mythic"
+      mythic: true
     - emoji: "🐤"
       role-id: "1479126226693259367"
+      label: "Heroic"
+      mythic: false

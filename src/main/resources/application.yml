@@ -7,11 +7,16 @@ discord:
   allowed-role-ids: ${DISCORD_ALLOWED_ROLE_IDS:}
   allowed-guild-ids: ${DISCORD_ALLOWED_GUILD_IDS:}
   role-message-channel-id: ${DISCORD_ROLE_MESSAGE_CHANNEL_ID:}
+  mythic-roster-channel-id: ${DISCORD_MYTHIC_ROSTER_CHANNEL_ID:}
   role-assignments:
     - emoji: "💀"
       role-id: "1479103112806666384"
-    - emoji: "👶"
+      label: "Mythic"
+      mythic: true
+    - emoji: "🔥"
       role-id: "1479103237989859410"
+      label: "Heroic"
+      mythic: false
 
 raidhelper:
   api-key: ${RAIDHELPER_API_KEY}

@@ -69,7 +69,6 @@ class BotStartup(
                     +Intent.GuildMessages
                     +Intent.MessageContent
                     +Intent.Guilds
-                    +Intent.GuildMessageReactions
                 }
             }
         }

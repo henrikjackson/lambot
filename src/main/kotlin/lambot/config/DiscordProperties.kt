@@ -11,10 +11,13 @@ class DiscordProperties {
     var allowedRoleIds: List<String> = emptyList()
     var allowedGuildIds: List<String> = emptyList()
     var roleMessageChannelId: String = ""
+    var mythicRosterChannelId: String = ""
     var roleAssignments: List<RoleAssignment> = emptyList()
 
     class RoleAssignment {
         var emoji: String = ""
         var roleId: String = ""
+        var label: String = ""
+        var mythic: Boolean = false
     }
 }
