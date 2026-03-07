@@ -132,6 +132,9 @@ object WowClasses {
     fun specEmojiName(className: String, specName: String): String? =
         specEmojiNames[className to specName]
 
+    fun classEmojiName(className: String): String =
+        className.lowercase().replace(" ", "_")
+
     fun keyFor(className: String) = className.lowercase().replace(" ", "-")
     fun fromKey(key: String) = specs.keys.firstOrNull { keyFor(it) == key }
     fun specsFor(classKey: String) = specs[fromKey(classKey)].orEmpty()

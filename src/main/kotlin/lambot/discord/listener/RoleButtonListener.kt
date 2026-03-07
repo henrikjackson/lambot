@@ -79,13 +79,21 @@ class RoleButtonListener(
         val assignment = properties.roleAssignments.find { it.roleId == roleId } ?: return
 
         if (assignment.mythic) {
+            val guild = kord.getGuildOrNull(event.interaction.guildId)
+            val emojiMap = guild?.emojis?.toList()?.associateBy { it.name } ?: emptyMap()
+
             event.interaction.respondEphemeral {
                 content = "Velg klassen din:"
                 actionRow {
                     stringSelect("mythic-class") {
                         placeholder = "Velg klasse..."
                         WowClasses.specs.keys.forEach { className ->
-                            options.add(SelectOptionBuilder(className, WowClasses.keyFor(className)))
+                            options.add(SelectOptionBuilder(className, WowClasses.keyFor(className)).apply {
+                                val guildEmoji = emojiMap[WowClasses.classEmojiName(className)]
+                                if (guildEmoji != null) {
+                                    emoji = DiscordPartialEmoji(id = guildEmoji.id, name = guildEmoji.name)
+                                }
+                            })
                         }
                     }
                 }
