@@ -19,7 +19,7 @@ class MythicRosterService(
 ) {
     private val logger = LoggerFactory.getLogger(MythicRosterService::class.java)
 
-    val marker = "**Mythic-roster**"
+    val marker = "**⚔️ ══ Mythic Roster ══ ⚔️**"
 
     @Volatile
     private var rosterMessageId: Snowflake? = null
@@ -73,15 +73,20 @@ class MythicRosterService(
             if (entries.isEmpty()) {
                 append("_Ingen Mythic-raiders registrert enda._")
             } else {
-                appendLine("**${entries.size} raiders:**")
-                entries.groupBy { it.role }.entries
+                val byRole = entries.groupBy { it.role }
+                val tanks   = byRole[WowRole.TANK]?.size   ?: 0
+                val healers = byRole[WowRole.HEALER]?.size ?: 0
+                val melee   = byRole[WowRole.MELEE]?.size  ?: 0
+                val ranged  = byRole[WowRole.RANGED]?.size ?: 0
+                appendLine("**${entries.size} raiders** — 🛡️ $tanks  💚 $healers  ⚔️ $melee  🏹 $ranged")
+                byRole.entries
                     .sortedBy { it.key.ordinal }
                     .forEach { (role, group) ->
                         appendLine()
                         appendLine("**${role.label} (${group.size}):**")
                         group.forEach {
                             val emoji = emojiString(emojiMap, it.wowClass, it.wowSpec)
-                            appendLine("$emoji<@${it.userId}> — ${it.wowSpec} ${it.wowClass}")
+                            appendLine("$emoji<@${it.userId}> — ${it.wowSpec}")
                         }
                     }
             }
